@@ -33,7 +33,7 @@ def is_prime(number):
     return True
 
 
-def filter_numbers(*numbers, filtr):
+def filter_numbers(numbers, filtr):
     """
     функция, которая на вход принимает список из целых чисел,
     и возвращает только чётные/нечётные/простые числа
