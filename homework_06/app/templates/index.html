@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Posts</title>
+</head>
+    <style>
+        .card {
+          /* Add shadows to create the "card" effect */
+          box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+          transition: 0.3s;
+        }
+
+        /* On mouse-over, add a deeper shadow */
+        .card:hover {
+          box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
+        }
+
+        /* Add some padding inside the card container */
+        .container {
+          padding: 2px 16px;
+        }
+    </style>
+<body>
+    <h1 align="center">All the posts</h1>
+    <form action="/create_post" method="POST">
+        <input type="text" name="title" placeholder="Post Title" required>
+        <textarea name="body" placeholder="Post Body" required></textarea>
+        <select name="user_id" required>
+            {% for user in users %}
+                <option value="{{ user.id }}">{{ user.username }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit">Create Post</button>
+    </form>
+    {% for post in posts %}
+        <div class="card">
+            <h3 align="center">{{ post.title }}</h3>
+            <div class="container">
+                <h4>{{ post.user.username }} {{ post.user.name }}</h4>
+                <p>{{ post.body }}</p>
+            </div>
+        </div>
+    {% endfor %}
+</body>
+</html>

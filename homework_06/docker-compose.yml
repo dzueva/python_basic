@@ -1,0 +1,30 @@
+services:
+  pg:
+    image: postgres
+    environment:
+      POSTGRES_DB: posts
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: example
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -d posts -U user" ]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  app:
+    build:
+      dockerfile: ./Dockerfile
+      context: ./
+    environment:
+      FLASK_KEY: "some secret key"
+      DATABASE_URI: "sqlite:///posts.db"
+    ports:
+      - "80:80"
+    depends_on:
+      pg:
+        condition: service_healthy
+
+volumes:
+  db-data:
