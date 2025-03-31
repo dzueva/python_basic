@@ -1,54 +1,109 @@
-"""
-Домашнее задание №1
-Функции и структуры данных
-"""
-from math import sqrt
+import csv
 
 
-def power_numbers(*numbers):
-    """
-    функция, которая принимает N целых чисел,
-    и возвращает список квадратов этих чисел
-    >>> power_numbers(1, 2, 5, 7)
-    <<< [1, 4, 25, 49]
-    """
-    result = []
-    for num in numbers:
-        result.append(int(num)**2)
-    return result
+def menu():
+    return input("Выберите интересующий пункт меню:\n1)Открыть файл\n2)Сохранить файл\n3)Показать все контакты\n4)Создать контакт\n5)Найти контакт\n6)Изменить контакт\n7)Удалить контакт\n8)Выход\n\n")
 
 
-# filter types
-ODD = "odd"
-EVEN = "even"
-PRIME = "prime"
+exit_flag = False
+file_open = False
 
 
-def is_prime(number):
-    if number <= 1:
-        return False
-    for i in range(2, int(sqrt(number)) + 1):
-        if number % i == 0:
-            return False
-    return True
+def open_file():
+    with open('data.csv', 'r', encoding='utf-8') as file:
+        reader = csv.reader(file)
+        data = list(reader)
+    print("Файл открыт\n")
+    return data
 
 
-def filter_numbers(numbers, filtr):
-    """
-    функция, которая на вход принимает список из целых чисел,
-    и возвращает только чётные/нечётные/простые числа
-    (выбор производится передачей дополнительного аргумента)
+def save_file(data):
+    global file_open
+    with open('data.csv', 'w', encoding='utf-8') as file:
+        for line in data:
+            file.write(",".join(line))
+            file.write("\n")
+    file_open = False
+    print("Файл сохранен\n")
 
-    >>> filter_numbers([1, 2, 3], ODD)
-    <<< [1, 3]
-    >>> filter_numbers([2, 3, 4, 5], EVEN)
-    <<< [2, 4]
-    """
-    result = []
-    if filtr == PRIME:
-        result = list(filter(is_prime, numbers))
-    elif filtr == EVEN:
-        result = [i for i in numbers if i % 2 == 0]
-    elif filtr == ODD:
-        result = [i for i in numbers if i % 2 != 0]
-    return result
+
+def view_contacts(data):
+    for line in data:
+        print(*line)
+    print()
+
+
+def create_contact(data):
+    new_name = input('Введите имя: ')
+    new_number = input('Введите номер: ')
+    new_comment = input('Введите комментарий: ')
+    if len(new_name) < 1 or len(new_number) < 1 or len(new_comment) < 1:
+        print("Новый контакт не создан. Неверно введены данные\n")
+    else:
+        data.append([new_name, new_number, new_comment])
+        print("Новый контакт успешно создан\n")
+
+
+def find_contact(data):
+    word_to_find = input("Введите слово для поиска: ")
+    for line in data:
+        if word_to_find in line:
+            print(*line)
+    print()
+
+
+def change_contact(data):
+    change_index = None
+    word_to_change = input("Введите слово, содержащееся в строке для изменения: ")
+    for list_index in range(len(data)):
+        if word_to_change in data[list_index]:
+            change_index = list_index
+            break
+    if change_index is not None:
+        new_contact = input('Введите "Name Phone Comment": ')
+        change_contact_list = new_contact.split()
+        if len(change_contact_list) != 3:
+            print("Новый контакт не был изменен. Неверно введены данные\n")
+        else:
+            data[change_index] = change_contact_list
+            print("Новый контакт успешно создан\n")
+    else:
+        print('Нет записи для изменения\n')
+
+
+def delete_contact(data):
+    delete_con = None
+    word_to_delete = input("Введите слово, содержащееся в строке для удаления: ")
+    for list_index in range(len(data)):
+        if word_to_delete in data[list_index]:
+            delete_con = data.pop(list_index)
+            break
+    if delete_con is not None:
+        print(f'Удалена запись {" ".join(delete_con)}\n')
+    else:
+        print('Нет записи для удаления\n')
+
+
+def exit_func():
+    global exit_flag
+    exit_flag = True
+
+
+menu_dict = {1: open_file, 2: save_file, 3: view_contacts, 4: create_contact, 5: find_contact, 6: change_contact, 7: delete_contact, 8: exit_func}
+
+while not exit_flag:
+
+    menu_item = menu()
+    if not menu_item.isdigit() or int(menu_item) > 8 or int(menu_item) < 1:
+        print("Неверно выбран пункт меню\n")
+    else:
+        if menu_item == "1":
+            data = open_file()
+            file_open = True
+        elif menu_item == "8":
+            exit_func()
+        elif file_open:
+            func_name = menu_dict[int(menu_item)]
+            func_name(data)
+        else:
+            print("Перед работой с файлом следует его открыть\n")

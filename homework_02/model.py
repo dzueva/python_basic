@@ -1,0 +1,85 @@
+import csv
+from abc import ABC, abstractmethod
+from dataclasses import dataclass
+
+
+@dataclass
+class Contact:
+    name: str
+    phone: str
+    comment: str
+
+    def __str__(self):
+        return f"{self.name} {self.phone} {self.comment}"
+
+
+class Directory:
+    def __init__(self) -> None:
+        self.contacts = []  # Список контактов
+        self.file_open = False
+        self.menu_item = None
+        self._menu = (
+            "МЕНЮ:\n"
+            "1) Открыть файл\n"
+            "2) Сохранить файл\n"
+            "3) Показать все контакты\n"
+            "4) Создать контакт\n"
+            "5) Найти контакт\n"
+            "6) Изменить контакт\n"
+            "7) Удалить контакт\n"
+            "8) Выход\n"
+        )
+
+    def __str__(self) -> str:
+        return self._menu
+
+    def add_contact(self, contact: Contact) -> None:
+        self.contacts.append(contact)
+
+    def search_contact(self, search_word: str):
+        for index, contact in enumerate(self.contacts):
+            if search_word in (contact.name, contact.phone, contact.comment):
+                return (index, contact)
+        return None
+
+    def change_contact(self, index: int, contact: Contact) -> None:
+        self.contacts[index] = contact
+
+    def remove_contact(self, contact: Contact) -> None:
+        if contact in self.contacts:
+            self.contacts.remove(contact)
+
+
+class FileManager(ABC):
+    def __init__(self, file_name: str, mode: str) -> None:
+        self.file_name = file_name
+        self.mode = mode
+        self.file = None
+
+    @abstractmethod
+    def __enter__(self):
+        pass
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.file.close()
+
+
+class FileManagerRead(FileManager):
+    def __init__(self, file_name: str) -> None:
+        super().__init__(file_name, "r")
+
+    def __enter__(self) -> list:
+        self.file = open(self.file_name, self.mode, encoding='utf-8')
+        reader = csv.reader(self.file)
+        return list(reader)
+
+
+class FileManagerWrite(FileManager):
+    def __init__(self, file_name: str, data: list) -> None:
+        super().__init__(file_name, "w")
+        self.data = data
+
+    def __enter__(self) -> None:
+        self.file = open(self.file_name, self.mode, encoding='utf-8')
+        for line in self.data:
+            self.file.write(f"{line.name},{line.phone},{line.comment}\n")
