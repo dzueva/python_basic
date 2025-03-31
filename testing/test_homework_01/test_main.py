@@ -2,7 +2,7 @@ from itertools import repeat
 import pytest
 from faker import Faker
 
-homework = pytest.importorskip("homework_01.main")
+homework = pytest.importorskip("homework_01.old_version.main")
 
 fake = Faker()
 
